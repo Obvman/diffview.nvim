@@ -266,7 +266,7 @@ function GitAdapter:get_dir(path)
   if code ~= 0 then
     return nil
   end
-  return out[1] and vim.trim(out[1])
+  return out[1] and utils.normalize_path(vim.trim(out[1]))
 end
 
 ---Verify that a given git rev is valid.

@@ -1,5 +1,7 @@
 local GitAdapter = require('diffview.vcs.adapters.git').GitAdapter
 local HgAdapter = require('diffview.vcs.adapters.hg').HgAdapter
+local config = require('diffview.config')
+local utils = require('diffview.utils')
 
 local M = {}
 
@@ -34,10 +36,19 @@ function M.get_adapter(opt)
 
     local err, toplevel = kind.find_toplevel(top_indicators)
 
+    -- If we failed to run git, then attempt to use the fallback command.
+    if err then
+      local conf = config.get_config()
+      if conf.git_cmd_fallback ~= nil then
+        conf["git_cmd"] = conf.git_cmd_fallback
+        err, toplevel = kind.find_toplevel(top_indicators)
+      end
+    end
+
     if not err then
       -- Create a new adapter instance. Store the resolved path args and the
       -- cpath in the adapter context.
-      return kind.create(toplevel, path_args, opt.cmd_ctx.cpath)
+      return kind.create(utils.normalize_path(toplevel), path_args, opt.cmd_ctx.cpath)
     end
 
     ::continue::

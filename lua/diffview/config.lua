@@ -38,6 +38,7 @@ M.defaults = {
   diff_binaries = false,
   enhanced_diff_hl = false,
   git_cmd = { "git" },
+  git_cmd_fallback = nil,
   hg_cmd = { "hg" },
   use_icons = true,
   show_help_hints = true,

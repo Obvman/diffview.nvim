@@ -1431,4 +1431,34 @@ end
 M._mapping_callbacks = mapping_callbacks
 M.path_sep = path_sep
 
+---Performs "WSL path normalization" - if we're in a WSL environment and the path
+---is of a Windows format, this will convert it to a WSL path.
+---@return string path
+function M.normalize_path(path)
+  -- Check if the returned path is Windows-style and convert it to a WSL
+  -- path
+  local is_wsl = vim.env.WSL_DISTRO_NAME and vim.env.WSL_DISTRO_NAME ~= ''
+
+  if path ~= nil then
+
+    local is_windows_path = path:find("%u:/") ~= nil
+    if is_wsl and is_windows_path then
+
+      local job_spec = {
+        command = "wslpath",
+        args = { path },
+        on_stderr = function(_, data) M.err(data) end,
+      }
+
+      local job = Job:new(job_spec)
+      local stdout, code = job:sync()
+      if code == 0 then
+        path = stdout[1]
+      end
+    end
+  end
+
+  return path
+end
+
 return M
